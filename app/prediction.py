@@ -1,3 +1,7 @@
+
+from pathlib import Path
+
+import joblib
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
@@ -42,6 +46,21 @@ class CreditRiskModel:
 
         self.model.fit(X, y)
 
+    def save_model(self, path="reports/creditrisk_model.joblib"):
+        """Sauvegarde le pipeline entraîné."""
+
+        if self.model is None:
+            raise RuntimeError("Modèle non chargé")
+
+        destination = Path(path)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        joblib.dump(self.model, destination)
+
+    def reload_model(self, path="reports/creditrisk_model.joblib"):
+        """Recharge un pipeline sauvegardé."""
+
+        self.model = joblib.load(path)
+
     def predict(self, features):
         """Retourne la probabilité de défaut."""
 
@@ -54,3 +73,4 @@ class CreditRiskModel:
 
 
 credit_model = CreditRiskModel()
+
