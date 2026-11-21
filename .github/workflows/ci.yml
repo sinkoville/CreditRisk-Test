@@ -1,0 +1,39 @@
+name: CreditRisk CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality-and-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Recuperer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Installer les dependances
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Verifier la qualite du code avec Ruff
+        run: ruff check app tests locustfile.py
+
+      - name: Executer les tests et mesurer la couverture
+        run: |
+          pytest --cov=app --cov-report=term-missing --cov-report=xml --cov-fail-under=90
+
+      - name: Archiver le rapport de couverture
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: creditrisk-coverage-report
+          path: coverage.xml
